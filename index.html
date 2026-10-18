@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>เครื่องเล่น CD</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#10131a">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--bg:#dfe3ea;--ink:#1c2230;--card:#eef0f4;--muted:#5a6477;--line:#b9c0cd;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10131a;--ink:#e6eaf3;--card:#232937;--muted:#97a2b8;--line:#394156}}
+:root[data-theme="dark"]{--bg:#10131a;--ink:#e6eaf3;--card:#232937;--muted:#97a2b8;--line:#394156}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Thai",sans-serif;min-height:100vh}
+.wrap{max-width:440px;margin:0 auto;padding:16px 14px 32px}
+.unit{border-radius:28px;padding:16px;background:linear-gradient(155deg,#f7f9fc 0%,#bcc4d0 38%,#e6eaf0 55%,#9aa5b5 100%);box-shadow:0 18px 40px rgba(0,0,0,.28),inset 0 2px 2px #fff,inset 0 -3px 6px rgba(0,0,0,.18);color:#1c2230}
+.win{height:230px;border-radius:18px;background:#0f1319;position:relative;overflow:hidden;display:grid;place-items:center;box-shadow:inset 0 6px 18px #000c,0 1px 0 #fff8}
+.tray{width:200px;height:200px;border-radius:22px;background:linear-gradient(#444c5c,#262b36);display:grid;place-items:center;transition:transform .6s cubic-bezier(.3,.8,.3,1),box-shadow .6s}
+.tray.out{transform:scale(1.1) translateY(8px);box-shadow:0 18px 26px #000a}
+.lid{position:absolute;inset:0;background:linear-gradient(170deg,rgba(255,255,255,.34),rgba(255,255,255,.04) 45%,rgba(255,255,255,.14));border-bottom:3px solid rgba(255,255,255,.35);transition:transform .6s cubic-bezier(.3,.8,.3,1);pointer-events:none}
+.tray.out ~ .lid{transform:translateY(-102%)}
+.disc{--h:200;width:164px;height:164px;border-radius:50%;position:relative;transition:opacity .3s;background:radial-gradient(circle,transparent 0 17%,rgba(255,255,255,.55) 17.5% 19%,transparent 19.5%),conic-gradient(hsl(var(--h) 85% 72%),hsl(calc(var(--h) + 60) 85% 68%),hsl(calc(var(--h) + 120) 85% 76%),hsl(calc(var(--h) + 190) 85% 68%),hsl(var(--h) 85% 72%));box-shadow:inset 0 0 0 3px rgba(255,255,255,.35),0 2px 8px #0008;animation:spin 2.4s linear infinite;animation-play-state:paused}
+.disc::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(rgba(255,255,255,.5),transparent 20%,rgba(255,255,255,.35) 50%,transparent 70%,rgba(255,255,255,.5))}
+.disc::after{content:"";position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px;border-radius:50%;background:#0f1319;box-shadow:0 0 0 6px rgba(255,255,255,.4)}
+.disc.run{animation-play-state:running}
+.disc.fast{animation-duration:.35s}
+.disc.none{background:none;border:2px dashed #5d667a;box-shadow:none;animation:none}
+.disc.none::before,.disc.none::after{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lcd{margin:14px 0 10px;border-radius:12px;padding:10px 12px;background:#b8d08c;color:#1f2d12;font-family:"Courier New",ui-monospace,monospace;box-shadow:inset 0 3px 8px rgba(0,0,0,.35),0 1px 0 #fff9}
+.lcd .r{display:flex;justify-content:space-between;gap:8px;font-size:13px;opacity:.85}
+.lcd .t{font-size:17px;font-weight:700;margin:6px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:22px}
+canvas{display:block;width:100%;height:30px;margin-top:6px}
+input[type=range]{width:100%;margin:2px 0 12px;accent-color:#5c6b86}
+.row{display:flex;gap:10px;justify-content:center;align-items:center}
+button{font:inherit;color:inherit;cursor:pointer;border:0}
+.k{width:60px;height:46px;border-radius:14px;font-size:20px;background:linear-gradient(#fdfeff,#c3cad6);box-shadow:0 3px 0 #8e98a9,0 5px 8px rgba(0,0,0,.25);transition:transform .08s,box-shadow .08s}
+.k:active{transform:translateY(3px);box-shadow:0 0 0 #8e98a9,0 1px 3px rgba(0,0,0,.3)}
+.k.big{width:76px;height:54px;font-size:24px}
+.k.on{background:linear-gradient(#cfe9a3,#9fc468)}
+.small{margin-top:12px}
+.small .k{width:auto;padding:0 14px;height:36px;font-size:14px;border-radius:12px}
+h2{font-size:16px;margin:22px 4px 10px}
+.shelf{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.slot{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:12px;display:flex;gap:10px;align-items:center;cursor:pointer;position:relative;min-height:84px}
+.slot.on{border-color:#6f86ad;box-shadow:0 0 0 2px #6f86ad55}
+.mini{--h:200;flex:none;width:46px;height:46px;border-radius:50%;background:conic-gradient(hsl(var(--h) 85% 72%),hsl(calc(var(--h) + 60) 85% 68%),hsl(calc(var(--h) + 120) 85% 76%),hsl(calc(var(--h) + 190) 85% 68%),hsl(var(--h) 85% 72%));position:relative}
+.mini::after{content:"";position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px;border-radius:50%;background:var(--card)}
+.mini.e{background:none;border:2px dashed var(--line)}
+.slot b{display:block;font-size:15px}
+.slot span{font-size:13px;color:var(--muted)}
+.x{position:absolute;top:4px;right:4px;width:28px;height:28px;border-radius:50%;background:none;color:var(--muted);font-size:14px}
+.hint{font-size:13px;color:var(--muted);margin:10px 4px 0;line-height:1.5}
+@media (prefers-reduced-motion:reduce){.tray,.lid{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="unit">
+    <div class="win">
+      <div class="tray" id="tray"><div class="disc none" id="disc"></div></div>
+      <div class="lid"></div>
+    </div>
+    <div class="lcd">
+      <div class="r"><span id="l1">NO DISC</span><span id="l2"></span></div>
+      <div class="t" id="title">ใส่แผ่นจากชั้นด้านล่าง</div>
+      <div class="r"><span id="time">00:00 / 00:00</span><span id="flags"></span></div>
+      <canvas id="viz" width="360" height="30"></canvas>
+    </div>
+    <input type="range" id="seek" min="0" max="1000" value="0" aria-label="เลื่อนตำแหน่งเพลง">
+    <div class="row">
+      <button class="k" id="prev" aria-label="เพลงก่อนหน้า">⏮</button>
+      <button class="k big" id="play" aria-label="เล่นหรือหยุด">▶</button>
+      <button class="k" id="next" aria-label="เพลงถัดไป">⏭</button>
+    </div>
+    <div class="row small">
+      <button class="k" id="eject">⏏ เปิดถาด</button>
+      <button class="k" id="shuf">สุ่ม</button>
+      <button class="k" id="rep">วน: ปิด</button>
+    </div>
+  </div>
+
+  <h2>ชั้นวางแผ่น</h2>
+  <div class="shelf" id="shelf"></div>
+  <p class="hint">แตะช่องว่างเพื่อเลือกไฟล์เพลงมาทำเป็นแผ่น 1 ช่อง = 1 แผ่น แตะแผ่นที่มีเพลงเพื่อสลับ เครื่องจะเปิดถาด เปลี่ยนแผ่น แล้วเล่นให้เอง ปิดหน้านี้แล้วต้องเลือกไฟล์ใหม่</p>
+  <audio id="au" preload="auto"></audio>
+  <input type="file" id="pick" accept="audio/*" multiple hidden>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const N=4,HUES=[200,320,40,150];
+const discs=Array(N).fill(null);
+let cur=-1,ti=0,open=false,shuf=false,rep=0,busy=false,target=0,ctx=null,an=null,data=null;
+const au=$('#au'),pick=$('#pick'),disc=$('#disc'),tray=$('#tray');
+const pad=n=>String(n).padStart(2,'0');
+const fmt=s=>isFinite(s)?pad(Math.floor(s/60))+':'+pad(Math.floor(s%60)):'00:00';
+
+function renderShelf(){
+  $('#shelf').innerHTML=discs.map((d,i)=>`<div class="slot ${i===cur?'on':''}" data-i="${i}">
+    <div class="mini ${d?'':'e'}" style="--h:${HUES[i]}"></div>
+    <div><b>แผ่น ${i+1}</b><span>${d?d.tracks.length+' เพลง':'แตะเพื่อเพิ่มเพลง'}</span></div>
+    ${d?`<button class="x" data-x="${i}" aria-label="ลบแผ่น ${i+1}">✕</button>`:''}</div>`).join('');
+}
+function lcd(){
+  if(cur<0){$('#l1').textContent='NO DISC';$('#l2').textContent='';$('#title').textContent='ใส่แผ่นจากชั้นด้านล่าง';return}
+  const d=discs[cur];
+  $('#l1').textContent='DISC '+(cur+1);
+  $('#l2').textContent='TRACK '+pad(ti+1)+'/'+pad(d.tracks.length);
+  $('#title').textContent=d.tracks[ti].name;
+}
+function flags(){
+  $('#flags').textContent=[shuf?'SHUF':'',rep===1?'REP':rep===2?'REP1':''].filter(Boolean).join(' ');
+  $('#shuf').classList.toggle('on',shuf);
+  $('#rep').classList.toggle('on',rep>0);
+  $('#rep').textContent='วน: '+['ปิด','ทั้งแผ่น','เพลงเดียว'][rep];
+}
+function spin(){disc.classList.toggle('run',!au.paused&&!open&&cur>=0);$('#play').textContent=au.paused?'▶':'❚❚'}
+function setDisc(){
+  if(cur<0){disc.className='disc none';return}
+  disc.className='disc'+(au.paused?'':' run');
+  disc.style.setProperty('--h',HUES[cur]);
+}
+function setOpen(v){open=v;tray.classList.toggle('out',v);spin()}
+function loadTrack(n,play){
+  ti=n;au.src=discs[cur].tracks[n].url;lcd();
+  if(play){graph();ctx&&ctx.resume&&ctx.resume();au.play().catch(()=>{})}
+}
+function swapTo(i){
+  if(busy)return;busy=true;au.pause();setOpen(true);
+  setTimeout(()=>{disc.style.opacity=0},350);
+  setTimeout(()=>{cur=i;ti=0;setDisc();disc.style.opacity=1;renderShelf();lcd();setOpen(false);
+    setTimeout(()=>{loadTrack(0,true);busy=false},650)},700);
+}
+function step(d,auto){
+  if(cur<0)return;
+  const L=discs[cur].tracks.length;let n;
+  if(auto&&rep===2)n=ti;
+  else if(shuf&&L>1){do{n=Math.floor(Math.random()*L)}while(n===ti)}
+  else{n=ti+d;if(n>=L||n<0){if(auto&&rep===0&&n>=L){loadTrack(0,false);return}n=(n+L)%L}}
+  loadTrack(n,true);
+  if(!auto){disc.classList.add('fast');setTimeout(()=>disc.classList.remove('fast'),700)}
+}
+function graph(){
+  if(ctx)return;
+  try{
+    ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const s=ctx.createMediaElementSource(au);an=ctx.createAnalyser();an.fftSize=64;
+    s.connect(an);an.connect(ctx.destination);data=new Uint8Array(an.frequencyBinCount);
+  }catch(e){an=null}
+}
+const cv=$('#viz'),g=cv.getContext('2d'),lv=Array(16).fill(0);
+function draw(){
+  if(an&&!au.paused)an.getByteFrequencyData(data);else if(data)data.fill(0);
+  g.clearRect(0,0,cv.width,cv.height);g.fillStyle='#1f2d12';
+  const w=cv.width/16;
+  for(let i=0;i<16;i++){
+    const v=data?data[i*2]/255:0;lv[i]=Math.max(v,lv[i]-.04);
+    const h=Math.max(2,lv[i]*cv.height);
+    g.fillRect(i*w+2,cv.height-h,w-4,h);
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+
+$('#shelf').addEventListener('click',e=>{
+  const x=e.target.closest('[data-x]');
+  if(x){const i=+x.dataset.x;discs[i].tracks.forEach(t=>URL.revokeObjectURL(t.url));discs[i]=null;
+    if(cur===i){au.pause();au.removeAttribute('src');cur=-1;setDisc();lcd();spin()}renderShelf();return}
+  const s=e.target.closest('.slot');if(!s)return;
+  const i=+s.dataset.i;
+  if(discs[i]){if(i!==cur)swapTo(i)}else{target=i;pick.click()}
+});
+pick.addEventListener('change',()=>{
+  const fs=[...pick.files].filter(f=>f.type.startsWith('audio')||/\.(mp3|m4a|wav|ogg|flac|aac)$/i.test(f.name));
+  pick.value='';if(!fs.length)return;
+  if(discs[target])discs[target].tracks.forEach(t=>URL.revokeObjectURL(t.url));
+  fs.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
+  discs[target]={tracks:fs.map(f=>({name:f.name.replace(/\.[^.]+$/,''),url:URL.createObjectURL(f)}))};
+  renderShelf();
+  if(cur<0||cur===target){cur=-1;swapTo(target)}
+});
+$('#play').onclick=()=>{
+  if(cur<0){$('#title').textContent='ยังไม่มีแผ่น แตะช่องบนชั้นวาง';return}
+  if(open){setOpen(false);setTimeout(()=>loadTrack(ti,true),650);return}
+  if(au.paused){graph();ctx&&ctx.resume&&ctx.resume();au.play().catch(()=>{})}else au.pause();
+};
+$('#next').onclick=()=>step(1,false);
+$('#prev').onclick=()=>{if(au.currentTime>3)au.currentTime=0;else step(-1,false)};
+$('#eject').onclick=()=>{
+  if(busy)return;
+  if(open){setOpen(false);$('#eject').textContent='⏏ เปิดถาด'}
+  else{au.pause();setOpen(true);$('#eject').textContent='⏏ ปิดถาด'}
+};
+$('#shuf').onclick=()=>{shuf=!shuf;flags()};
+$('#rep').onclick=()=>{rep=(rep+1)%3;flags()};
+au.onplay=au.onpause=spin;
+au.onended=()=>step(1,true);
+au.ontimeupdate=()=>{
+  $('#time').textContent=fmt(au.currentTime)+' / '+fmt(au.duration);
+  if(au.duration)$('#seek').value=au.currentTime/au.duration*1000;
+};
+$('#seek').oninput=e=>{if(au.duration)au.currentTime=e.target.value/1000*au.duration};
+renderShelf();flags();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
